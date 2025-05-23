@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mapa CDMX</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <style>
+    body, html { margin: 0; padding: 0; height: 100%; }
+    #map { width: 100%; height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([19.4326, -99.1332], 12); // CDMX centro
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const lugares = [
+      "Guadalupe Tepeyac", "Colonia Estrella", "Aragón La Villa",
+      "Bosques de Aragón", "San Juan de Aragón",
+      "Residencial Zacatenco", "Martín Carrera", "Tepeyac Insurgentes",
+      "Vallejo", "Peralvillo", "Tlatelolco", "Buenavista",
+      "Lindavista", "Juárez", "Roma Norte", "Centro", "Roma Sur",
+      "Narvarte", "Vertíz Narvarte", "Colonia del Valle Centro",
+      "Colonia del Valle Norte", "Nápoles", "San Pedro de los Pinos",
+      "Nonoalco", "San Juan", "Tacubaya", "Condesa", "Hipódromo",
+      "San Rafael", "Tacuba", "Polanco", "Azcapotzalco", "Industrial Vallejo"
+    ];
+
+    const geocoder = async (lugar) => {
+      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(lugar + ', Ciudad de México')}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data[0]) {
+        const { lat, lon, display_name } = data[0];
+        L.marker([lat, lon]).addTo(map)
+          .bindPopup(`<strong>${lugar}</strong><br>${display_name}`);
+      }
+    };
+
+    (async () => {
+      for (const lugar of lugares) {
+        await geocoder(lugar);
+      }
+    })();
+  </script>
+</body>
+</html>
